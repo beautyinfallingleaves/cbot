@@ -1,4 +1,9 @@
 require('dotenv').config();
+const app = require('./app.js');
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Listening on port ${PORT}`);
+});
 const dialogflow = require('@google-cloud/dialogflow');
 
 // projectId: ID of the GCP project where Dialogflow agent is deployed
