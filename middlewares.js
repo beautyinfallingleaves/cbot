@@ -1,4 +1,5 @@
 const { WebhookClient } = require('dialogflow-fulfillment');
+const { DateTime } = require('luxon');
 
 module.exports = {
   dialogflowFulfillmentMw,
@@ -6,19 +7,26 @@ module.exports = {
 
 function dialogflowFulfillmentMw(request, response) {
   const agent = new WebhookClient({ request, response });
+  const { parameters } = request.body.queryResult;
+  console.log(request.body.queryResult.parameters);
   // console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   // console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
 
-  function webhookTest(agent) {
-    agent.add('[wh fulfillment] test success!');
-  }
-
-  function webhookTest2(agent) {
-    agent.add('[wh fulfillment] this is the 2nd agent!');
-  }
-
   function logHours(agent) {
-    agent.add('[wh fulfillment] yeah, lets log hours!!');
+    const { date, ticket, hours } = parameters;
+
+    let dt;
+    if (date) dt = DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY);
+
+    if (!date) {
+      agent.add('What day are you trying to report hours for?');
+    } else if (!ticket) {
+      agent.add(`Whick ticket are you trying to log hours against?`);
+    } else if (!hours) {
+      agent.add(`How many hours did you work${dt ? ' on ' + dt : ''}?`);
+    } else {
+      agent.add(`Nice! Cbot will log ${hours} hours on ${dt} against ticket ${ticket}!`);
+    }
   }
 
   // // Uncomment and edit to make your own intent handler
@@ -42,8 +50,6 @@ function dialogflowFulfillmentMw(request, response) {
 
   // Run the proper function handler based on the matched Dialogflow intent name
   let intentMap = new Map();
-  intentMap.set('webhookTest', webhookTest);
-  intentMap.set('webhookTest2', webhookTest2);
   intentMap.set('logHours', logHours);
   // intentMap.set('your intent name here', yourFunctionHandler);
   agent.handleRequest(intentMap);
