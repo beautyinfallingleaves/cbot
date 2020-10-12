@@ -1,56 +1,74 @@
-const { WebhookClient } = require('dialogflow-fulfillment');
+const  { dialogflow } = require('actions-on-google');
+const { sessionEntitiesHelper } = require('actions-on-google-dialogflow-session-entities-plugin')
 const { DateTime } = require('luxon');
+const MonkeyLearn = require('monkeylearn');
+const { dummyTickets } = require('./jira-cases');
 
-module.exports = {
-  dialogflowFulfillmentMw,
+
+const fulfillmentMw = dialogflow()
+  .use(sessionEntitiesHelper());
+
+fulfillmentMw.intent('loadTickets', conv => {
+  conv.ask('Loading tickets...')
+
+  // fake fetch tickets from jira, probably based on params like active sprint/assigned to this end-user
+  console.log('~~ TICKETS', dummyTickets);
+
+  // build sessionEntities from tickets via keyword extraction
+  // const entities = await sessionEntitiesFromTickets(dummyTickets);
+  // console.log('~~~ built entities', entities);
+
+  // cheapo - just build sessionEntities from ticket name & title... seems to work better than keyword extraction?
+  const entities = dummyTickets.map(t => ({
+    value: t.name,
+    synonyms: [ t.name, t.title ],
+  }));
+
+  conv.sessionEntities.clear();
+  conv.sessionEntities.add({
+    name: 'ticket',
+    entities,
+  });
+  conv.sessionEntities.send();
+});
+
+async function sessionEntitiesFromTickets(tickets) {
+  const ml = new MonkeyLearn(process.env.MONKEYLEARN_TOKEN);
+  const modelId = 'ex_YCya9nrn';
+
+  // join ticket id, title, and contents into a long string to parse for keywords via MonkeyLearn
+  const textToParse = tickets.map(t => ({
+    external_id: t.name,
+    text: Object.values(t).join(' '),
+  }));
+
+  const result = await ml.extractors.extract(modelId, textToParse);
+
+  return result.body.map(t => ({
+    value: t.external_id,
+    synonyms: [
+      t.name,
+      t.title,
+      ...t.extractions.map(e => e.parsed_value)
+    ],
+  }))
 }
 
-function dialogflowFulfillmentMw(request, response) {
-  const agent = new WebhookClient({ request, response });
-  const { parameters } = request.body.queryResult;
-  console.log(request.body.queryResult.parameters);
-  // console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
-  // console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
+fulfillmentMw.intent('logHours', (conv, { date, ticket, hours }) => {
+  let dt;
+  if (date) dt = DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY);
 
-  function logHours(agent) {
-    const { date, ticket, hours } = parameters;
-
-    let dt;
-    if (date) dt = DateTime.fromISO(date).toLocaleString(DateTime.DATE_MED_WITH_WEEKDAY);
-
-    if (!date) {
-      agent.add('What day are you trying to report hours for?');
-    } else if (!ticket) {
-      agent.add(`Whick ticket are you trying to log hours against?`);
-    } else if (!hours) {
-      agent.add(`How many hours did you work${dt ? ' on ' + dt : ''}?`);
-    } else {
-      agent.add(`Nice! Cbot will log ${hours} hours on ${dt} against ticket ${ticket}!`);
-    }
+  if (!date) {
+    conv.ask('What day are you trying to report hours for?');
+  } else if (!ticket) {
+    conv.ask(`Whick ticket are you trying to log hours against?`);
+  } else if (!hours) {
+    conv.ask(`How many hours did you work?`);
+  } else {
+    conv.ask(`Nice! Cbot will log ${hours} hours on ${dt} against ticket ${ticket}!`);
   }
+});
 
-  // // Uncomment and edit to make your own intent handler
-  // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
-  // // below to get this function to be run when a Dialogflow intent is matched
-  // function yourFunctionHandler(agent) {
-  //   agent.add(`This message is from Dialogflow's Cloud Functions for Firebase editor!`);
-  //   agent.add(new Card({
-  //       title: `Title: this is a card title`,
-  //       imageUrl: 'https://developers.google.com/actions/images/badges/XPM_BADGING_GoogleAssistant_VER.png',
-  //       text: `This is the body text of a card.  You can even use line\n  breaks and emoji! 💁`,
-  //       buttonText: 'This is a button',
-  //       buttonUrl: 'https://assistant.google.com/'
-  //     })
-  //   );
-  //   agent.add(new Suggestion(`Quick Reply`));
-  //   agent.add(new Suggestion(`Suggestion`));
-  //   agent.setContext({ name: 'weather', lifespan: 2, parameters: { city: 'Rome' }});
-  // }
-
-
-  // Run the proper function handler based on the matched Dialogflow intent name
-  let intentMap = new Map();
-  intentMap.set('logHours', logHours);
-  // intentMap.set('your intent name here', yourFunctionHandler);
-  agent.handleRequest(intentMap);
+module.exports = {
+  fulfillmentMw,
 }
