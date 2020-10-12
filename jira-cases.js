@@ -1,7 +1,7 @@
-const MonkeyLearn = require('monkeylearn');
+// const MonkeyLearn = require('monkeylearn');
 require('dotenv').config();
 
-const dummyCases = [
+const dummyTickets = [
   {
     name: 'SCOPE-2863',
     title: 'Ability to add a pair (primary/redundant) for Local Power Circuits',
@@ -22,15 +22,47 @@ const dummyCases = [
     title: 'Logic Monitor version reverting to V1',
     description: 'Bug: As a MS user, when I update the logic monitor credentials the LM version gets set to v1, even if the dropdown shows v2. I need to change the dropdown to v1 then back to v2 for v2 to be saved.',
   },
+  {
+    name: 'DIGIME-141',
+    title: 'Playlist management API & backend work',
+    description: 'As a CMS user, I need to be able to manage playlists for my company. I need to be able to update the playlist name, add jobs to a playlist, remove jobs to a playlist, and update the order of jobs in a playlist. I also need to be able to delete a playlist Need to create API routes and database changes to support this functionality'
+  },
+  {
+    name: 'SCOPE-2829',
+    title: 'Remove incomplete connections',
+    description: 'Create script to find all incomlete connections for switches and servers and remove them',
+  }
 ]
 
-const ml = new MonkeyLearn(process.env.MONKEYLEARN_TOKEN);
-const modelId = 'ex_YCya9nrn';
-const data = [ Object.values(dummyCases[3]).join(' ') ];
-ml.extractors.extract(modelId, data).then(res => {
-  res.body[0].extractions
-    // .filter(e => e.relevance.toString() > 0.3)
-    .map(e => console.log(e));
-}).catch(err => console.log(err));
+// const ml = new MonkeyLearn(process.env.MONKEYLEARN_TOKEN);
+// const modelId = 'ex_YCya9nrn';
 
-module.exports = dummyCases;
+// const dfSessionEntities = dummyTickets.reduce(async (entities, ticket) => {
+//   const entity = {
+//     value: ticket.name,
+//     synonyms: await getKeywordsFromTicket(ticket),
+//   }
+
+//   entities.push(entity);
+//   return entities;
+// }, []);
+
+// async function getKeywordsFromTicket(ticket) {
+//   // join all known text data about the ticket- id, title, desc- for keyword parsing (yes, this is heavy-handed)
+//   const textToParse = [ Object.values(ticket).join(' ') ];
+//   const result = await ml.extractors.extract(modelId, textToParse);
+//   const keywords = result.body[0].extractions.map(e => e.parsed_value);
+//   console.log('~~ KEYWORDS', keywords);
+//   return keywords;
+// }
+
+// ml.extractors.extract(modelId, data).then(res => {
+//   res.body[0].extractions
+//     // .filter(e => e.relevance.toString() > 0.3)
+//     .map(e => console.log(e));
+// }).catch(err => console.log(err));
+// console.log('~~ entitiesToAdd', dfSessionEntities);
+
+module.exports = {
+  dummyTickets,
+};
