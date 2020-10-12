@@ -1,9 +1,10 @@
 const dialogflow = require('@google-cloud/dialogflow');
+const { v4: uuidv4 } = require('uuid');
 
 // projectId: ID of the GCP project where Dialogflow agent is deployed.
 const projectId = process.env.PROJECT_ID;
 // sessionId: String representing a random number or hashed user identifier.
-const sessionId = '123456';
+const sessionId = uuidv4();
 // languageCode: Indicates the language Dialogflow agent should use to detect intents.
 const languageCode = process.env.LANGUAGE_CODE;
 

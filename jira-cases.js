@@ -1,6 +1,3 @@
-// const MonkeyLearn = require('monkeylearn');
-require('dotenv').config();
-
 const dummyTickets = [
   {
     name: 'SCOPE-2863',
@@ -31,37 +28,18 @@ const dummyTickets = [
     name: 'SCOPE-2829',
     title: 'Remove incomplete connections',
     description: 'Create script to find all incomlete connections for switches and servers and remove them',
-  }
+  },
+  {
+    name: 'INTERNAL-668',
+    title: 'Standup & Sprint Planning',
+    description: 'Standup & Sprint Planning',
+  },
+  {
+    name: 'INTERNAL-26',
+    title: 'Internal - Time Tracking and Ticket clearing',
+    description: 'Internal - Time Tracking and Ticket clearing',
+  },
 ]
-
-// const ml = new MonkeyLearn(process.env.MONKEYLEARN_TOKEN);
-// const modelId = 'ex_YCya9nrn';
-
-// const dfSessionEntities = dummyTickets.reduce(async (entities, ticket) => {
-//   const entity = {
-//     value: ticket.name,
-//     synonyms: await getKeywordsFromTicket(ticket),
-//   }
-
-//   entities.push(entity);
-//   return entities;
-// }, []);
-
-// async function getKeywordsFromTicket(ticket) {
-//   // join all known text data about the ticket- id, title, desc- for keyword parsing (yes, this is heavy-handed)
-//   const textToParse = [ Object.values(ticket).join(' ') ];
-//   const result = await ml.extractors.extract(modelId, textToParse);
-//   const keywords = result.body[0].extractions.map(e => e.parsed_value);
-//   console.log('~~ KEYWORDS', keywords);
-//   return keywords;
-// }
-
-// ml.extractors.extract(modelId, data).then(res => {
-//   res.body[0].extractions
-//     // .filter(e => e.relevance.toString() > 0.3)
-//     .map(e => console.log(e));
-// }).catch(err => console.log(err));
-// console.log('~~ entitiesToAdd', dfSessionEntities);
 
 module.exports = {
   dummyTickets,
