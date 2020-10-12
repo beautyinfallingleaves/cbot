@@ -44,6 +44,8 @@ fulfillmentMw.intent('logHours', (conv, { date, ticket, duration }) => {
     conv.ask(`How much time did you spend?`);
   } else {
     conv.ask(`Nice! Cbot will log ${duration.amount}${duration.unit} on ${dt} against ticket ${ticket}!`);
+
+    // POST hours to Tempo
   }
 });
 
