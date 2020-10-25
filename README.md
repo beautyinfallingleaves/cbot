@@ -17,7 +17,7 @@ This is a rough proof-of-concept application for experimenting with Google's Nat
 
 Reading the [Dialogflow basics](https://cloud.google.com/dialogflow/docs/basics) as suggested by the setup guide is highly recommended in order to understand what this application is doing.
 
-*Note: the `actions-on-google` libary we use to handle webhook fulfillment requires Node v10.*
+*Note: the `actions-on-google` libary we use to handle webhook fulfillment requires that this application be run using Node v10.*
 
 ## Using Cbot
 Try typing *"hi", "heya cbot",* or similar on the CLI- Cbot should recognize most normal greetings and suggest you ask it about finding tickets or logging hours.
